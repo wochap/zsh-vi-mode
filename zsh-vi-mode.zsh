@@ -335,7 +335,13 @@ for commands_array_name in $commands_array_names; do
 done
 
 function zsh-system-clipboard-set() { 
-  wl-copy;
+  # Oh My Zsh buildin lib function clipcopy 
+  clipcopy;
+}
+
+function zsh-system-clipboard-get() { 
+  # Oh My Zsh buildin lib function clippaste 
+  clippaste;
 }
 
 # All the handlers for switching keyword
@@ -1093,6 +1099,7 @@ function zvm_vi_yank() {
 
 # Put cutbuffer after the cursor
 function zvm_vi_put_after() {
+  CUTBUFFER=$(zsh-system-clipboard-get)
   local head= foot=
   local content=${CUTBUFFER}
   local offset=1
@@ -1145,6 +1152,7 @@ function zvm_vi_put_after() {
 
 # Put cutbuffer before the cursor
 function zvm_vi_put_before() {
+  CUTBUFFER=$(zsh-system-clipboard-get)
   local head= foot=
   local content=${CUTBUFFER}
 
@@ -1214,6 +1222,7 @@ function zvm_replace_selection() {
 
 # Replace characters of the visual selection
 function zvm_vi_replace_selection() {
+  CUTBUFFER=$(zsh-system-clipboard-get)
   zvm_replace_selection $CUTBUFFER
   zvm_exit_visual_mode ${1:-true}
 }
