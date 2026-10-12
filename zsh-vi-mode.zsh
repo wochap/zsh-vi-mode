@@ -2106,9 +2106,7 @@ function zvm_change_surround() {
       else
         key=$surround
       fi
-      if [[ $ZVM_MODE == $ZVM_MODE_VISUAL ]]; then
-        zle visual-mode
-      fi
+      REGION_ACTIVE=0
       ;;
   esac
 
@@ -2116,6 +2114,9 @@ function zvm_change_surround() {
   case "$key" in
     $'\e'|"${ZVM_VI_ESCAPE_BINDKEY//\^\[/$'\e'}")
       zvm_highlight clear
+      case $action in
+        S|y|a) zvm_select_vi_mode $ZVM_MODE_NORMAL;;
+      esac
       return
   esac
 
@@ -2986,10 +2987,10 @@ function zvm_enter_visual_mode() {
 
 # Exit the visual mode
 function zvm_exit_visual_mode() {
-  case "$ZVM_MODE" in
-    $ZVM_MODE_VISUAL) zle visual-mode;;
-    $ZVM_MODE_VISUAL_LINE) zle visual-line-mode;;
-  esac
+  # Deactivate the region explicitly instead of toggling it with
+  # `zle visual-mode`, since toggling re-activates the region when
+  # REGION_ACTIVE is already out of sync with ZVM_MODE
+  REGION_ACTIVE=0
   zvm_highlight clear
   zvm_select_vi_mode $ZVM_MODE_NORMAL ${1:-true}
 }
@@ -3091,6 +3092,7 @@ function zvm_select_vi_mode() {
   case $mode in
     $ZVM_MODE_NORMAL)
       ZVM_MODE=$ZVM_MODE_NORMAL
+      REGION_ACTIVE=0
       zvm_update_cursor
       zle vi-cmd-mode
       ;;
@@ -3102,12 +3104,14 @@ function zvm_select_vi_mode() {
     $ZVM_MODE_VISUAL)
       ZVM_MODE=$ZVM_MODE_VISUAL
       zvm_update_cursor
-      zle visual-mode
+      (( REGION_ACTIVE )) || MARK=$CURSOR
+      REGION_ACTIVE=1
       ;;
     $ZVM_MODE_VISUAL_LINE)
       ZVM_MODE=$ZVM_MODE_VISUAL_LINE
       zvm_update_cursor
-      zle visual-line-mode
+      (( REGION_ACTIVE )) || MARK=$CURSOR
+      REGION_ACTIVE=2
       ;;
     $ZVM_MODE_REPLACE)
       ZVM_MODE=$ZVM_MODE_REPLACE
