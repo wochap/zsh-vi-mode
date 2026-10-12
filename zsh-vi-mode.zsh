@@ -3521,6 +3521,12 @@ function zvm_init() {
   zvm_bindkey visual 'd' zvm_vi_delete
   zvm_bindkey visual 'x' zvm_vi_delete
   zvm_bindkey visual 'y' zvm_vi_yank
+  # Ctrl+Insert (e.g. sent by a keyboard combo) yanks the selection
+  zvm_bindkey visual '^[[2;5~' zvm_vi_yank
+  # Ctrl+Shift+C (CSI u and xterm modifyOtherKeys encodings)
+  zvm_bindkey visual '^[[99;6u' zvm_vi_yank
+  zvm_bindkey visual '^[[67;6u' zvm_vi_yank
+  zvm_bindkey visual '^[[27;6;67~' zvm_vi_yank
   zvm_bindkey vicmd  'p' zvm_vi_put_after
   zvm_bindkey vicmd  'P' zvm_vi_put_before
   zvm_bindkey visual 'p' zvm_vi_replace_selection
